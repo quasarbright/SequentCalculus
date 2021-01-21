@@ -1,0 +1,85 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.33.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 6bca4d4162e5253686030a567e09d75634cdfe5d249ceac9d717504ada281d4a
+
+name:           SequentCalculus
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/quasarbright/SequentCalculus#readme>
+homepage:       https://github.com/quasarbright/SequentCalculus#readme
+bug-reports:    https://github.com/quasarbright/SequentCalculus/issues
+author:         Mike Delmonaco
+maintainer:     mdelmonacochs@gmail.com
+copyright:      Mike Delmonaco
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/quasarbright/SequentCalculus
+
+library
+  exposed-modules:
+      Ast
+      Lib
+      Reduction
+  other-modules:
+      Paths_SequentCalculus
+  hs-source-dirs:
+      src
+  default-extensions: LambdaCase RecordWildCards GeneralizedNewtypeDeriving TupleSections MonadComprehensions MultiWayIf
+  build-depends:
+      base >=4.7 && <5
+    , containers
+    , extra
+    , megaparsec
+    , mtl
+    , transformers
+  default-language: Haskell2010
+
+executable SequentCalculus-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_SequentCalculus
+  hs-source-dirs:
+      app
+  default-extensions: LambdaCase RecordWildCards GeneralizedNewtypeDeriving TupleSections MonadComprehensions MultiWayIf
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -w -Wall
+  build-depends:
+      SequentCalculus
+    , base >=4.7 && <5
+    , containers
+    , extra
+    , megaparsec
+    , mtl
+    , transformers
+  default-language: Haskell2010
+
+test-suite SequentCalculus-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_SequentCalculus
+  hs-source-dirs:
+      test
+  default-extensions: LambdaCase RecordWildCards GeneralizedNewtypeDeriving TupleSections MonadComprehensions MultiWayIf
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -w -Wall
+  build-depends:
+      HUnit
+    , QuickCheck
+    , SequentCalculus
+    , base >=4.7 && <5
+    , containers
+    , extra
+    , hspec
+    , megaparsec
+    , mtl
+    , transformers
+  default-language: Haskell2010
