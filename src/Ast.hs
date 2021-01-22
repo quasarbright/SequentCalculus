@@ -1,6 +1,11 @@
 module Ast where
 
 import Data.List (intercalate)
+import Data.Set(Set)
+import qualified Data.Set as Set
+import Data.Map(Map)
+import qualified Data.Map as Map
+
 
 
 data Binop = And | Or | Impl deriving(Eq, Ord)
@@ -56,3 +61,32 @@ data Sequent = Sequent { sassumptions :: [Formula], sconclusions :: [Formula] } 
 instance Show Sequent where
     show Sequent{..} = intercalate ", " (show <$> sassumptions) ++ " |- " ++ intercalate ", " (show <$> sconclusions)
     showList ss = showString (intercalate "\n" (show <$> ss))
+
+logicOfBinop :: Binop -> Bool -> Bool -> Bool
+logicOfBinop = \case
+    And -> (&&)
+    Or -> (||)
+    Impl -> (\a b -> not a || b)
+
+eval :: [(String, Bool)] -> Formula -> Either String Bool
+eval env = let go = eval env in \case
+    Var x -> case lookup x env of
+        Nothing -> Left x
+        Just b -> return b
+    Not e -> not <$> go e
+    Binop b l r -> logicOfBinop b <$> go l <*> go r
+
+evalm :: Map String Bool -> Formula -> Either String Bool
+evalm env = let go = evalm env in \case
+    Var x -> case Map.lookup x env of
+        Nothing -> Left x
+        Just b -> return b
+    Not e -> not <$> go e
+    Binop b l r -> logicOfBinop b <$> go l <*> go r
+
+
+freeVars :: Formula -> Set String
+freeVars = \case
+    Var x -> Set.singleton x
+    Binop _ l r -> freeVars l <> freeVars r
+    Not e -> freeVars e

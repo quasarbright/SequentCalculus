@@ -120,20 +120,6 @@ getSSols s = case getSVars s of
 cnf :: [[Formula]] -> Formula
 cnf = foldl1 (/\) . fmap (foldl1 (\/))
 
-binop :: Binop -> Bool -> Bool -> Bool
-binop = \case
-    And -> (&&)
-    Or -> (||)
-    Impl -> (\a b -> not a || b)
-
-eval :: [(String, Bool)] -> Formula -> Either String Bool
-eval env = let go = eval env in \case
-    Var x -> case lookup x env of
-        Nothing -> Left x
-        Just b -> return b
-    Not e -> not <$> go e
-    Binop b l r -> binop b <$> go l <*> go r
-
 checkSat :: (Formula -> [(String, Bool)]) -> Formula -> Either String Bool
 checkSat satfun f = eval (satfun f) f 
     
@@ -144,6 +130,9 @@ now you have an O(n^2) sat decider, I think. But how do you extract the solution
 conjecture: reduce the sequent. Look at the non-provable sequents. maybe that tells you something?
 I've done some manual testing, and noticed a pattern: variables which have to be unequal end up on opposite
 sides of the turnstile. And variables which have to be equal end up on the same side.
+
+It's actually not O(n^2) bc of splits.
+It's O(m^n) for n clauses of size m.
 
 damn, I think It's left true right false.
 
@@ -185,5 +174,9 @@ Interesting how r is always true in the sequents. Even with cnf, not all assignm
 Not looking good. Might not even get a reduction to an easier sat at this point.
 
 But these sequents seem to say (p=t,q=f) or (p=t,r=t,q=f) or (q=t,r=t,p=t) which is dnf. Interesting.
+
+Just realized reduction is exponential for sat. But it would be cool to make a solver anyway.
+
+reduction just produces a dnf expression, which you also have to solve. Screw this.
 
 -}
