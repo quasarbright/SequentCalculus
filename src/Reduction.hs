@@ -180,3 +180,6 @@ Just realized reduction is exponential for sat. But it would be cool to make a s
 reduction just produces a dnf expression, which you also have to solve. Screw this.
 
 -}
+
+-- TODO if you want to render the inference tree, nested inferences can be rendered as nested \frac{}{} latex commands
+-- with \qquad between them! Not actually that bad
