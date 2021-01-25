@@ -1,9 +1,12 @@
+{-# LANGUAGE FlexibleInstances #-}
+
 module Reduction where
 
 import Ast
 import Control.Arrow ((>>>))
 import Data.Set(Set)
 import qualified Data.Set as Set
+import Latex
 
 data Status = Reducible | NonProvable | Provable deriving(Eq, Ord, Show)
 
@@ -73,6 +76,36 @@ reduce =
         reduceconc = repeatUntilIdempotent (concatMap stepconc)
     in reduceass . reduceconc
 
+data Rose a = Rose a [Rose a] deriving(Eq, Ord, Show)
+
+instance Functor Rose where
+    fmap f (Rose a children) = Rose (f a) (fmap (fmap f) children)
+
+instance Applicative Rose where
+    pure a = Rose a []
+    Rose f rfs <*> Rose x rxs = Rose (f x) [rf <*> rx | rf <- rfs, rx <- rxs]
+
+instance Latex (Rose Sequent) where
+    latex (Rose a rs) = "\\frac{\\displaystyle "++latex a++"}{\\displaystyle "++latexList rs "}"
+    latexList [] = showString ""
+    latexList [r] = showString (latex r)
+    latexList (r:rs) = (latex r++) . ("\\qquad "++) . latexList rs
+
+treeConc :: Sequent -> Rose Sequent
+treeConc s = let ss = stepconc s in
+    case ss of
+        [s'] | s == s' -> treeAss s
+        _ -> Rose s (fmap treeConc ss)
+
+treeAss :: Sequent -> Rose Sequent
+treeAss s = let ss = stepass s in
+    case ss of
+        [s'] | s == s' -> pure s
+        _ -> Rose s (fmap treeAss ss)
+
+reduceTree :: Sequent -> Rose Sequent
+reduceTree = treeConc
+
 initSequent :: Formula -> Sequent
 initSequent f = Sequent [] [f]
 
@@ -121,9 +154,9 @@ cnf :: [[Formula]] -> Formula
 cnf = foldl1 (/\) . fmap (foldl1 (\/))
 
 checkSat :: (Formula -> [(String, Bool)]) -> Formula -> Either String Bool
-checkSat satfun f = eval (satfun f) f 
+checkSat satfun f = eval (satfun f) f
     
-        
+
 
 {-
 now you have an O(n^2) sat decider, I think. But how do you extract the solution?

@@ -5,6 +5,7 @@ import Data.Set(Set)
 import qualified Data.Set as Set
 import Data.Map(Map)
 import qualified Data.Map as Map
+import Latex
 
 
 
@@ -15,6 +16,12 @@ instance Show Binop where
         And -> " /\\ "
         Or -> " \\/ "
         Impl -> " \\-> "
+
+instance Latex Binop where
+    latex = \case
+        And -> " \\wedge "
+        Or -> " \\vee "
+        Impl -> " \\Rightarrow "
 
 data Formula = Binop Binop Formula Formula
              | Not Formula
@@ -29,6 +36,16 @@ instance Show Formula where
             Impl -> showParen (prec > 1) $ showsPrec 2 l . (show b ++) . showsPrec 1 r
         Not e -> showParen (prec > 4) $ ("neg "++) . showsPrec 4 e
         Var x -> showString x
+
+instance Latex Formula where
+    latexsPrec prec = \case
+        Binop b l r -> case b of
+            And -> showParen (prec > 3) $ latexsPrec 3 l . (latex b ++) . latexsPrec 4 r
+            Or -> showParen (prec > 2) $ latexsPrec 2 l . (latex b ++) . latexsPrec 3 r
+            Impl -> showParen (prec > 1) $ latexsPrec 2 l . (latex b ++) . latexsPrec 1 r
+        Not e -> showParen (prec > 4) $ ("\\neg "++) . latexsPrec 4 e
+        Var x -> showString x
+
 
 p :: Formula
 p = Var "p"
@@ -61,6 +78,12 @@ data Sequent = Sequent { sassumptions :: [Formula], sconclusions :: [Formula] } 
 instance Show Sequent where
     show Sequent{..} = intercalate ", " (show <$> sassumptions) ++ " |- " ++ intercalate ", " (show <$> sconclusions)
     showList ss = showString (intercalate "\n" (show <$> ss))
+
+instance Latex Sequent where
+    latex Sequent{..} = latexList sassumptions "" ++ "\\ \\vdash\\ " ++ latexList sconclusions ""
+    latexList [] = showString ""
+    latexList [s] = showString (latex s)
+    latexList (s:ss) = (latex s ++) . ("\\qquad "++) . latexList ss
 
 logicOfBinop :: Binop -> Bool -> Bool -> Bool
 logicOfBinop = \case

@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 326bac1bcc9a699f24023157125fea485e7e9ef05f30e56fba83907e14e4d296
+-- hash: b96c28b4e1da33d5d8ed9de500a48d6b7a6e790afcce485bc36c6023e29d8da4
 
 name:           SequentCalculus
 version:        0.1.0.0
@@ -28,6 +28,7 @@ source-repository head
 library
   exposed-modules:
       Ast
+      Latex
       Lib
       Reduction
       Sat

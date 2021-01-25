@@ -1,6 +1,7 @@
 module Main where
 
-import Lib
+import Reduction
+import Latex
 
 main :: IO ()
-main = someFunc
+main = putStrLn . latex . reduceTree . initSequent $ cnf [[p,q,q],[p, neg q, neg q], [neg q, p, p]]
